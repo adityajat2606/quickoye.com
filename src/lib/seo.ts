@@ -226,6 +226,14 @@ export async function buildSiteMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(baseUrl),
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon.png", type: "image/png" },
+        { url: "/favico.png", type: "image/png" },
+      ],
+      apple: "/favicon.png",
+    },
     title: {
       default: siteTitle,
       template: ctx.titleTemplate,

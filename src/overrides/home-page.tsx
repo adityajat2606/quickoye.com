@@ -1,5 +1,7 @@
-export const HOME_PAGE_OVERRIDE_ENABLED = false
+import { HomeLandingShell } from '@/overrides/home-landing-shell'
 
-export async function HomePageOverride() {
-  return null
+export const HOME_PAGE_OVERRIDE_ENABLED = true
+
+export function HomePageOverride() {
+  return <HomeLandingShell />
 }

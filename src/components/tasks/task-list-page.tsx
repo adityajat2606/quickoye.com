@@ -10,6 +10,15 @@ import { CATEGORY_OPTIONS, normalizeCategory } from '@/lib/categories'
 import { taskIntroCopy } from '@/config/site.content'
 import { getFactoryState } from '@/design/factory/get-factory-state'
 import { TASK_LIST_PAGE_OVERRIDE_ENABLED, TaskListPageOverride } from '@/overrides/task-list-page'
+import { MarketingTaskListHero } from '@/components/marketing/marketing-task-list-hero'
+
+const marketingUi = {
+  muted: 'text-black/60',
+  panel: 'border border-black/8 bg-white shadow-[0_20px_60px_rgba(40,20,24,0.06)]',
+  soft: 'border border-black/8 bg-[#faf8f5] text-[#1f1418]',
+  input: 'border border-black/10 bg-white text-[#1f1418]',
+  button: 'rounded-[10px] bg-[#4A0E1C] text-white hover:bg-[#3a0c16]',
+} as const
 
 const taskIcons: Record<TaskKey, any> = {
   listing: Building2,
@@ -39,7 +48,15 @@ const variantShells = {
   'sbm-library': 'bg-[linear-gradient(180deg,#f7f8fc_0%,#ffffff_100%)]',
 } as const
 
-export async function TaskListPage({ task, category }: { task: TaskKey; category?: string }) {
+export async function TaskListPage({
+  task,
+  category,
+  surface = 'default',
+}: {
+  task: TaskKey
+  category?: string
+  surface?: 'default' | 'marketing'
+}) {
   if (TASK_LIST_PAGE_OVERRIDE_ENABLED) {
     return await TaskListPageOverride({ task, category })
   }
@@ -57,33 +74,38 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   }))
   const { recipe } = getFactoryState()
   const layoutKey = recipe.taskLayouts[task as keyof typeof recipe.taskLayouts] || `${task}-${task === 'listing' ? 'directory' : 'editorial'}`
-  const shellClass = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
+  const shellClassBase = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
+  const isMarketing = surface === 'marketing'
+  const shellClass = isMarketing ? 'bg-[#F9F7F2] text-[#1f1418]' : shellClassBase
   const Icon = taskIcons[task] || LayoutGrid
 
-  const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
-  const ui = isDark
-    ? {
-        muted: 'text-slate-300',
-        panel: 'border border-white/10 bg-white/6',
-        soft: 'border border-white/10 bg-white/5',
-        input: 'border-white/10 bg-white/6 text-white',
-        button: 'bg-white text-slate-950 hover:bg-slate-200',
-      }
-    : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+  const isDark =
+    !isMarketing && ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
+  const ui = isMarketing
+    ? marketingUi
+    : isDark
       ? {
-          muted: 'text-[#72594a]',
-          panel: 'border border-[#dbc6b6] bg-white/90',
-          soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
-          input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
-          button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          muted: 'text-slate-300',
+          panel: 'border border-white/10 bg-white/6',
+          soft: 'border border-white/10 bg-white/5',
+          input: 'border-white/10 bg-white/6 text-white',
+          button: 'bg-white text-slate-950 hover:bg-slate-200',
         }
-      : {
-          muted: 'text-slate-600',
-          panel: 'border border-slate-200 bg-white',
-          soft: 'border border-slate-200 bg-slate-50',
-          input: 'border border-slate-200 bg-white text-slate-950',
-          button: 'bg-slate-950 text-white hover:bg-slate-800',
-        }
+      : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+        ? {
+            muted: 'text-[#72594a]',
+            panel: 'border border-[#dbc6b6] bg-white/90',
+            soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
+            input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
+            button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
+          }
+        : {
+            muted: 'text-slate-600',
+            panel: 'border border-slate-200 bg-white',
+            soft: 'border border-slate-200 bg-slate-50',
+            input: 'border border-slate-200 bg-white text-slate-950',
+            button: 'bg-slate-950 text-white hover:bg-slate-800',
+          }
 
   return (
     <div className={`min-h-screen ${shellClass}`}>
@@ -120,7 +142,11 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           />
         ) : null}
 
-        {layoutKey === 'listing-directory' || layoutKey === 'listing-showcase' ? (
+        {isMarketing ? (
+          <MarketingTaskListHero task={task} taskConfig={taskConfig} normalizedCategory={normalizedCategory} />
+        ) : null}
+
+        {!isMarketing && (layoutKey === 'listing-directory' || layoutKey === 'listing-showcase') ? (
           <section className="mb-12 grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
             <div className={`rounded-[2rem] p-7 shadow-[0_24px_70px_rgba(15,23,42,0.07)] ${ui.panel}`}>
               <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.24em] opacity-70"><Icon className="h-4 w-4" /> {taskConfig?.label || task}</div>
@@ -146,7 +172,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'article-editorial' || layoutKey === 'article-journal' ? (
+        {!isMarketing && (layoutKey === 'article-editorial' || layoutKey === 'article-journal') ? (
           <section className="mb-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
@@ -169,7 +195,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'image-masonry' || layoutKey === 'image-portfolio' ? (
+        {!isMarketing && (layoutKey === 'image-masonry' || layoutKey === 'image-portfolio') ? (
           <section className="mb-12 grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
             <div>
               <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] ${ui.soft}`}>
@@ -186,7 +212,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'profile-creator' || layoutKey === 'profile-business' ? (
+        {!isMarketing && (layoutKey === 'profile-creator' || layoutKey === 'profile-business') ? (
           <section className={`mb-12 rounded-[2.2rem] p-8 shadow-[0_24px_70px_rgba(15,23,42,0.1)] ${ui.panel}`}>
             <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
               <div className={`min-h-[240px] rounded-[2rem] ${ui.soft}`} />
@@ -199,7 +225,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'classified-bulletin' || layoutKey === 'classified-market' ? (
+        {!isMarketing && (layoutKey === 'classified-bulletin' || layoutKey === 'classified-market') ? (
           <section className="mb-12 grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div className={`rounded-[1.8rem] p-6 ${ui.panel}`}>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
@@ -215,7 +241,7 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        {layoutKey === 'sbm-curation' || layoutKey === 'sbm-library' ? (
+        {!isMarketing && (layoutKey === 'sbm-curation' || layoutKey === 'sbm-library') ? (
           <section className="mb-12 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
@@ -251,7 +277,13 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           </section>
         ) : null}
 
-        <TaskListClient task={task} initialPosts={posts} category={normalizedCategory} />
+        {isMarketing ? (
+          <div className="rounded-[12px] border border-black/8 bg-white p-3 shadow-[0_16px_48px_rgba(40,20,24,0.05)] sm:p-5">
+            <TaskListClient task={task} initialPosts={posts} category={normalizedCategory} />
+          </div>
+        ) : (
+          <TaskListClient task={task} initialPosts={posts} category={normalizedCategory} />
+        )}
       </main>
       <Footer />
     </div>
