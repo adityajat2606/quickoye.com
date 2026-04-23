@@ -1,29 +1,55 @@
-﻿import { PageShell } from '@/components/shared/page-shell'
-import { Card, CardContent } from '@/components/ui/card'
+﻿import Link from 'next/link'
+import { MarketingCtaRow, MarketingPublicShell } from '@/components/marketing/marketing-public-shell'
+import { MarketingSurfaceCard } from '@/components/marketing/marketing-surface-card'
+import { marketingTheme } from '@/components/marketing/marketing-theme'
 
 const sections = [
-  { title: 'Essential Cookies', body: 'Required for authentication and core features.' },
-  { title: 'Analytics Cookies', body: 'Help us understand how the platform is used.' },
-  { title: 'Preference Cookies', body: 'Remember your settings and saved filters.' },
+  {
+    title: 'Essential cookies',
+    body: 'Required for security, load balancing, and remembering that you are signed in (including local session continuity for profiles and bookmarks).',
+  },
+  {
+    title: 'Functional preferences',
+    body: 'Store UI choices such as theme, collapsed navigation, and filter defaults so returning visits feel instant.',
+  },
+  {
+    title: 'Analytics (optional where applicable)',
+    body: 'Aggregated telemetry helps us understand which help articles work and where curators drop off—never sold, never used for unrelated ads.',
+  },
+  {
+    title: 'Managing cookies',
+    body: 'Use browser controls to clear cookies. Some features may require reauthentication after clearing storage.',
+  },
 ]
 
 export default function CookiesPage() {
   return (
-    <PageShell
-      title="Cookie Policy"
-      description="Details about the cookies we use."
+    <MarketingPublicShell
+      eyebrow="Legal"
+      title="Cookie policy"
+      description="We keep cookies minimal: enough for auth continuity, preferences, and optional aggregated analytics."
+      contentWidth="narrow"
+      actions={<MarketingCtaRow primary={{ href: '/privacy', label: 'Privacy policy' }} secondary={{ href: '/contact', label: 'Cookie questions' }} />}
     >
-      <Card className="border-border bg-card">
-        <CardContent className="p-6 space-y-4">
-          <p className="text-xs text-muted-foreground">Last updated: March 16, 2026</p>
+      <MarketingSurfaceCard className="p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/45">Last updated</p>
+        <p className="mt-1 text-sm text-black/60">April 21, 2026</p>
+        <div className="mt-8 space-y-6">
           {sections.map((section) => (
-            <div key={section.title} className="rounded-lg border border-border bg-secondary/40 p-4">
-              <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{section.body}</p>
+            <div key={section.title} className="rounded-[10px] border border-black/8 bg-[#faf8f5] p-5">
+              <h3 className="text-base font-semibold text-[#1f1418]">{section.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-black/60">{section.body}</p>
             </div>
           ))}
-        </CardContent>
-      </Card>
-    </PageShell>
+        </div>
+        <p className="mt-8 text-sm text-black/55">
+          Want fewer trackers everywhere? We support that philosophy—start with{' '}
+          <Link className="font-semibold underline-offset-2 hover:underline" style={{ color: marketingTheme.maroon }} href="/help">
+            Help center → Privacy tips
+          </Link>
+          .
+        </p>
+      </MarketingSurfaceCard>
+    </MarketingPublicShell>
   )
 }
