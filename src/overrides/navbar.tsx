@@ -1,7 +1,9 @@
 'use client'
 
-export const NAVBAR_OVERRIDE_ENABLED = false
+import { MarketingNavbar } from '@/overrides/marketing-navbar'
+
+export const NAVBAR_OVERRIDE_ENABLED = true
 
 export function NavbarOverride() {
-  return null
+  return <MarketingNavbar />
 }
