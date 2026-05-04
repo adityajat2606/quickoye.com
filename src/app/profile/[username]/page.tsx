@@ -13,6 +13,7 @@ import { fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG } from "@/lib/site-config";
 import { MapPin, Globe, Mail, Tag, ArrowLeft } from "lucide-react";
 import { ActionBar } from "./action-bar";
+import { RichContent, formatRichHtml } from "@/components/shared/rich-content";
 
 export const revalidate = 3;
 
@@ -88,6 +89,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
     (content.description as string | undefined) ||
     post.summary ||
     "Profile details will appear here once available.";
+  const descriptionHtml = formatRichHtml(description, "Profile details will appear here once available.");
   const suggestedArticles = await fetchTaskPosts("article", 6);
   const baseUrl = SITE_CONFIG.baseUrl.replace(/\/$/, "");
   const breadcrumbData = {
@@ -157,16 +159,10 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
             <h2 className="text-lg font-semibold leading-snug text-slate-900">{post.title}</h2>
 
             {/* Description */}
-            <p className="mt-3 text-[15px] leading-7 text-slate-600">
-              {getExcerpt(description, 400)}
-            </p>
-
-            {/* Read More Link */}
-            {description.length > 400 && (
-              <button className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
-                Read More
-              </button>
-            )}
+            <RichContent
+              html={descriptionHtml}
+              className="mt-3 text-[15px] leading-7 text-slate-600 prose-p:my-0 prose-a:text-blue-600 prose-a:hover:text-blue-700"
+            />
 
             {/* Contact Info Grid */}
             <div className="mt-5 grid gap-2">
